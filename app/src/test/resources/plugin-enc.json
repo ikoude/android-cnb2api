@@ -1,0 +1,20 @@
+{
+  "format": "cnb2api-backup",
+  "version": 1,
+  "exportedAt": "2026-11-24T07:55:29.858Z",
+  "scope": "settings",
+  "encrypted": true,
+  "kdf": {
+    "name": "scrypt",
+    "N": 16384,
+    "r": 8,
+    "p": 1,
+    "salt": "mn2h1B4gqT8sozoYIeIBug=="
+  },
+  "cipher": {
+    "name": "aes-256-gcm",
+    "iv": "+TGB4tSNFnXPxret",
+    "tag": "mVMIGfD1J00d2DI16ukUzw=="
+  },
+  "data": "wL/TgbxrB2OlyWk6n7UmhnYGudqgk/bAP6C0zY4sjGeCvUnWmrk3fj/ILVKULFglzPNFQZwXN38j065dzzbKjH211PXACd6sczG4mAUnSaNLl62rZsSpxNK8TaR7iBzt5A0x2ZTr9lRfloxdJK/tXuyLVSwMnQKQl7fvMK85M8jMjadudMwGtzzScaVr3AhBaznmJMms+f5cACBKzuy2MWaK7M8Fj8ZN4Sm8akDaZTu093TQarirR1fKCnYbrdZknV5x2CIjA5eNTLN/P78L4Y669REit7+TJ0Xi1VddnAz5dispsiST/0Je/j0t"
+}

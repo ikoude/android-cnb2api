@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 深色模式下用黑色启动背景，避免从 Compose 深色界面切出/启动时白屏一闪。 -->
+    <style name="Theme.Cnb2api" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@android:color/black</item>
+    </style>
+</resources>
