@@ -46,6 +46,8 @@ class Monitor(
     private var quotaAt = 0L
     private var lastHealthAt = 0L
     private var lastStartAt = 0L
+    // 上次已记过的“被拦住”原因；相同原因不重复写日志，避免每轮巡检刷屏。
+    private var lastBlockedLogReason: String? = null
     private val syncMutex = Mutex()
     private val quotaMutex = Mutex()
     private val startMutex = Mutex()
@@ -136,9 +138,8 @@ class Monitor(
             }
 
             starting = false
-            // 地址仍可用时不必每次巡检都重新解析（详情接口 + 可能拉日志），直接复用。
-            val next = if (url.isNotBlank() && reachable) url
-            else cnb.resolveUrl(account.token, account.normalizedRepo, workspaceId, gatewayPort)
+            // 每次巡检都重新解析地址：工作区重启后地址会变，复用旧地址会导致后续请求连不上。
+            val next = cnb.resolveUrl(account.token, account.normalizedRepo, workspaceId, gatewayPort)
             if (next.isNullOrBlank()) {
                 reachable = false
                 lastError = "工作区在运行，但取不到网关地址 · 日志可能尚未输出，或日志接口暂时不可用"
@@ -219,21 +220,30 @@ class Monitor(
         }
     }
 
+    /** 同一原因只记一次；状态变化或解除后再记，避免每轮巡检重复刷屏。 */
+    private fun logBlockedOnce(reason: String) {
+        lastStartBlockedReason = reason
+        if (lastBlockedLogReason != reason) {
+            lastBlockedLogReason = reason
+            log("[$label] $reason")
+        }
+    }
+
     private suspend fun beginStart(intent: String, forceQuota: Boolean): Boolean {
         val q = try { quota(forceQuota) } catch (e: Exception) { null }
         if (QuotaMath.isExhausted(q)) {
             creditExhausted = true
-            lastStartBlockedReason = "AI credits 已用尽 · 额度恢复后会自动启动"
-            log("[$label] $lastStartBlockedReason")
+            logBlockedOnce("AI credits 已用尽 · 额度恢复后会自动启动")
             return false
         }
         val floor = settings().creditFloorPercent
         val ratio = q?.credit?.remainPercent
         if (floor > 0 && ratio != null && ratio < floor) {
-            lastStartBlockedReason = "余额低于保底线 $floor% · 停止使用这个账号（可用 ${String.format(java.util.Locale.US, "%.2f", ratio)}%）"
-            log("[$label] $lastStartBlockedReason")
+            logBlockedOnce("余额低于保底线 $floor% · 停止使用这个账号（可用 ${String.format(java.util.Locale.US, "%.2f", ratio)}%）")
             return false
         }
+        // 不再被拦，重置去重状态，允许下次再次拦截时重新记录。
+        lastBlockedLogReason = null
         return try {
             cnb.startWorkspace(account.token, account.normalizedRepo, startBranch)
             lastStartAt = System.currentTimeMillis()
@@ -267,6 +277,16 @@ class Monitor(
             gap = (gap * 2).coerceAtMost(8000)
         }
         return false
+    }
+
+    /**
+     * 上游连接失败时立即失效当前地址：工作区可能在重启、地址会变，
+     * 先清空避免后续请求继续打到旧地址，等重新同步拿到新地址。
+     */
+    fun invalidateEndpoint() {
+        url = ""
+        reachable = false
+        lastHealthAt = 0
     }
 
     fun updateProxyKey(key: String) {

@@ -346,7 +346,8 @@ class GatewayServer(
             } catch (e: Exception) {
                 lastMessage = "连接上游失败 · ${e.message ?: "网络错误"}"
                 manager.log("连接上游失败 (${m.label}) · ${e.message}", LogLevel.ERROR)
-                manager.penalize(m, lastMessage)
+                // 失效旧地址并立即后台重同步：工作区重启后地址会变，等下一轮巡检太慢。
+                manager.noteUpstreamFailure(m, lastMessage)
                 continue
             }
 
@@ -398,12 +399,17 @@ class GatewayServer(
 
         failures++
         manager.log("转发失败 $uri · $lastMessage", LogLevel.ERROR)
+        val connectFailed = lastMessage.contains("连接上游失败")
         return json(if (lastStatus in 400..499 && lastStatus != 401 && lastStatus != 402 && lastStatus != 403) statusOf(lastStatus) else Response.Status.SERVICE_UNAVAILABLE,
             JSONObject()
                 .put("ok", false)
                 .put("reason", "cnb2api 不可用 · $lastMessage")
                 .put("upstream", lastDetail)
-                .put("hint", "检查令牌权限 account-engage:r 与 repo-cnb-trigger:r，或补足额度"))
+                .put("hint", if (connectFailed) {
+                    "上游工作区可能正在重启或手机网络不通 · 稍等几秒重试，或在账号页点「刷新」重新获取地址"
+                } else {
+                    "检查令牌权限 account-engage:r 与 repo-cnb-trigger:r，或补足额度"
+                }))
     }
 
     private fun readBody(session: IHTTPSession): ByteArray {

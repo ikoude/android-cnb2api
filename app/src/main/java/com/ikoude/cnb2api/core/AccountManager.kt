@@ -49,6 +49,11 @@ class AccountManager(private val store: SecureStore) {
         configure(store.loadAccounts(), settings)
     }
 
+    // 连续重复日志合并计数，避免「额度已用尽」这类每轮都写的提示把 200 条缓冲刷满、挤掉真正的错误。
+    private var lastLogBase: String? = null
+    private var lastLogLevel: com.ikoude.cnb2api.data.LogLevel? = null
+    private var lastLogRepeat = 0
+
     fun log(line: String, level: com.ikoude.cnb2api.data.LogLevel? = null) {
         val lv = level ?: when {
             ERROR_RE.containsMatchIn(line) -> com.ikoude.cnb2api.data.LogLevel.ERROR
@@ -56,11 +61,19 @@ class AccountManager(private val store: SecureStore) {
             else -> com.ikoude.cnb2api.data.LogLevel.INFO
         }
         synchronized(logs) {
-            logs.add(com.ikoude.cnb2api.data.LogLine(
-                java.time.LocalTime.now().format(TIME_FMT),
-                line, lv,
-            ))
-            while (logs.size > 200) logs.removeAt(0)
+            val now = java.time.LocalTime.now().format(TIME_FMT)
+            if (line == lastLogBase && lv == lastLogLevel && logs.isNotEmpty()) {
+                lastLogRepeat++
+                logs[logs.size - 1] = com.ikoude.cnb2api.data.LogLine(
+                    now, "$line（重复 $lastLogRepeat 次）", lv,
+                )
+            } else {
+                lastLogBase = line
+                lastLogLevel = lv
+                lastLogRepeat = 1
+                logs.add(com.ikoude.cnb2api.data.LogLine(now, line, lv))
+                while (logs.size > 200) logs.removeAt(0)
+            }
         }
     }
 
@@ -152,9 +165,19 @@ class AccountManager(private val store: SecureStore) {
         return (row.until - System.currentTimeMillis()) to row.reason
     }
 
-    fun penalize(m: Monitor, reason: String) {
-        cooldowns[m.identity] = Cooldown(System.currentTimeMillis() + COOLDOWN_MS, reason)
-        log("账号 ${m.label} 进入冷却 60s · ${reason.take(120)}")
+    fun penalize(m: Monitor, reason: String, cooldownMs: Long = COOLDOWN_MS) {
+        cooldowns[m.identity] = Cooldown(System.currentTimeMillis() + cooldownMs, reason)
+        log("账号 ${m.label} 进入冷却 ${cooldownMs / 1000}s · ${reason.take(120)}")
+    }
+
+    /**
+     * 纯连接失败（工作区重启/地址漂移/手机网络抖动）：只短暂降权，立即失效旧地址并触发后台重同步，
+     * 避免沿用失效地址持续报错。
+     */
+    fun noteUpstreamFailure(m: Monitor, reason: String) {
+        penalize(m, reason, 10_000L)
+        m.invalidateEndpoint()
+        scope.launch { m.sync("upstream-fail") }
     }
 
     fun reward(m: Monitor) { cooldowns.remove(m.identity) }
