@@ -95,19 +95,6 @@ class GatewayService : Service() {
         getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
     }
 
-    private fun largeIconBitmap(): android.graphics.Bitmap? = try {
-        val d = androidx.core.content.ContextCompat.getDrawable(this, R.drawable.ic_noti_large)
-        if (d == null) null else {
-            val size = 192
-            d.setBounds(0, 0, size, size)
-            val bmp = android.graphics.Bitmap.createBitmap(size, size, android.graphics.Bitmap.Config.ARGB_8888)
-            android.graphics.Canvas(bmp).also { d.draw(it) }
-            bmp
-        }
-    } catch (e: Exception) {
-        null
-    }
-
     private fun notification(): android.app.Notification {
         // 点击通知回到 App（复用已有任务，不重建 Activity）。
         val openIntent = Intent(this, MainActivity::class.java).apply {
@@ -119,8 +106,6 @@ class GatewayService : Service() {
         )
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_stat_gateway)
-            // 显式设置大图标，避免系统沿用旧应用图标缓存。
-            .setLargeIcon(largeIconBitmap())
             .setColor(android.graphics.Color.parseColor("#185FA5"))
             .setContentTitle("网关运行中")
             .setContentText("OpenAI 接口已就绪 · 点击打开")
