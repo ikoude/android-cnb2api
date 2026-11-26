@@ -3,6 +3,7 @@ package com.ikoude.cnb2api.server
 import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -14,6 +15,7 @@ import android.os.PowerManager
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import com.ikoude.cnb2api.CnbApp
+import com.ikoude.cnb2api.MainActivity
 import com.ikoude.cnb2api.R
 
 /** 常驻前台服务：让网关在切后台、锁屏后继续监听。 */
@@ -93,13 +95,41 @@ class GatewayService : Service() {
         getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
     }
 
-    private fun notification() = NotificationCompat.Builder(this, CHANNEL_ID)
-        .setSmallIcon(R.drawable.ic_stat_gateway)
-        .setContentTitle("网关运行中")
-        .setContentText("OpenAI 接口已就绪")
-        .setOngoing(true)
-        .setPriority(NotificationCompat.PRIORITY_LOW)
-        .build()
+    private fun largeIconBitmap(): android.graphics.Bitmap? = try {
+        val d = androidx.core.content.ContextCompat.getDrawable(this, R.drawable.ic_noti_large)
+        if (d == null) null else {
+            val size = 192
+            d.setBounds(0, 0, size, size)
+            val bmp = android.graphics.Bitmap.createBitmap(size, size, android.graphics.Bitmap.Config.ARGB_8888)
+            android.graphics.Canvas(bmp).also { d.draw(it) }
+            bmp
+        }
+    } catch (e: Exception) {
+        null
+    }
+
+    private fun notification(): android.app.Notification {
+        // 点击通知回到 App（复用已有任务，不重建 Activity）。
+        val openIntent = Intent(this, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
+        val contentIntent = PendingIntent.getActivity(
+            this, 0, openIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
+        return NotificationCompat.Builder(this, CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_stat_gateway)
+            // 显式设置大图标，避免系统沿用旧应用图标缓存。
+            .setLargeIcon(largeIconBitmap())
+            .setColor(android.graphics.Color.parseColor("#185FA5"))
+            .setContentTitle("网关运行中")
+            .setContentText("OpenAI 接口已就绪 · 点击打开")
+            .setContentIntent(contentIntent)
+            .setOngoing(true)
+            .setShowWhen(false)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .build()
+    }
 
     companion object {
         private const val CHANNEL_ID = "cnb2api-gateway"

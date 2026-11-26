@@ -3,7 +3,7 @@
 ## 阻塞项（发布前必须处理）
 
 - [ ] **Release 签名**：当前 `:app:assembleRelease` 只生成 `app-release-unsigned.apk`，不能直接安装。需要配置 keystore / Play App Signing，并生成 `app-release.apk` 或 `.aab`。
-- [ ] **版本号**：当前 `versionCode = 4`、`versionName = 0.2.2`，发布前按版本规范递增。
+- [ ] **版本号**：当前 `versionCode = 5`、`versionName = 0.2.2`，发布前按版本规范递增。
 - [ ] **targetSdk**：当前 `targetSdk = 35`；若上 Google Play，需确认商店当前要求的 target API 并做升级/回归测试。
 - [ ] **分发渠道**：确认是侧载 APK、企业分发还是应用商店；商店需要隐私政策、应用说明、图标/截图与内容分级。
 
