@@ -106,7 +106,6 @@ class GatewayService : Service() {
         )
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_stat_gateway)
-            .setColor(android.graphics.Color.parseColor("#185FA5"))
             .setContentTitle("网关运行中")
             .setContentText("OpenAI 接口已就绪 · 点击打开")
             .setContentIntent(contentIntent)
