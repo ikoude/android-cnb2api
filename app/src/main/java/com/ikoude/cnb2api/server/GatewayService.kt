@@ -104,6 +104,8 @@ class GatewayService : Service() {
             this, 0, openIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
+        // 不设置 largeIcon / 自定义布局：通知默认使用应用启动图标，
+        // 这样通知栏、关于页与桌面图标一致；状态栏小图标仍是单色剪影由系统着色。
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_stat_gateway)
             .setContentTitle("网关运行中")

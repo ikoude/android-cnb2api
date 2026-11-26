@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
@@ -80,12 +82,17 @@ fun AboutScreen(@Suppress("UNUSED_PARAMETER") vm: MainViewModel) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Icon(
-                painter = painterResource(R.drawable.ic_launcher_foreground),
-                contentDescription = null,
-                tint = p.blue,
-                modifier = Modifier.size(72.dp),
-            )
+            Box(
+                Modifier.size(88.dp).clip(RoundedCornerShape(22.dp)).background(Color(0xFFEDF3FB)),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_launcher_foreground),
+                    contentDescription = null,
+                    tint = Color(0xFF185FA5),
+                    modifier = Modifier.size(60.dp),
+                )
+            }
             Text("CNB2API", style = IosText.title(), color = p.label)
             Text("把 CNB2API 网关放到手机上", style = IosText.footnote(), color = p.secondaryLabel)
             IosBadge("v$versionName", p.blue)
