@@ -445,9 +445,9 @@ fun SettingsScreen(vm: MainViewModel) {
 
         IosSection(header = "底部导航栏", footer = "上下拖动调整顺序；设置页固定显示，其余页可隐藏。") {
             val ids = tabOrder.split(",").map { it.trim() }.filter { it.isNotEmpty() }
-                .let { base -> (base + listOf("dashboard", "accounts", "settings", "logs").filter { it !in base }) }
+                .let { base -> (base + listOf("dashboard", "accounts", "settings", "logs", "about").filter { it !in base }) }
             val labels = mapOf(
-                "dashboard" to "仪表盘", "accounts" to "账号", "settings" to "设置", "logs" to "日志",
+                "dashboard" to "仪表盘", "accounts" to "账号", "settings" to "设置", "logs" to "日志", "about" to "关于",
             )
             val idsState = rememberUpdatedState(ids)
             val density = androidx.compose.ui.platform.LocalDensity.current

@@ -31,7 +31,7 @@ data class AppSettings(
     val appearance: String = "system",
     val listenHost: String = "0.0.0.0",
     val gatewayAutoStart: Boolean = true,
-    val tabOrder: String = "dashboard,accounts,settings,logs",
+    val tabOrder: String = "dashboard,accounts,settings,logs,about",
     val hiddenTabs: String = "",
     val webdavUrl: String = "",
     val webdavUser: String = "",

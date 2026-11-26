@@ -61,6 +61,7 @@ fun AppShell(vm: MainViewModel) {
             TabSpec("accounts", "账号", R.drawable.ic_tab_accounts),
             TabSpec("settings", "设置", R.drawable.ic_tab_settings),
             TabSpec("logs", "日志", R.drawable.ic_tab_logs),
+            TabSpec("about", "关于", R.drawable.ic_tab_about),
         )
     }
     val orderSource = tabsOverride?.first ?: settings.tabOrder
@@ -174,6 +175,7 @@ fun AppShell(vm: MainViewModel) {
                                 "accounts" -> AccountsScreen(vm)
                                 "settings" -> SettingsScreen(vm)
                                 "logs" -> LogsScreen(vm)
+                                "about" -> AboutScreen(vm)
                             }
                         }
                     }

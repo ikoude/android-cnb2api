@@ -216,7 +216,7 @@ object Backup {
             appearance = o.optString("appearance", "system"),
             listenHost = listenHost,
             gatewayAutoStart = o.optBoolean("gatewayAutoStart", true),
-            tabOrder = o.optString("tabOrder", "dashboard,accounts,settings,logs"),
+            tabOrder = o.optString("tabOrder", "dashboard,accounts,settings,logs,about"),
             hiddenTabs = o.optString("hiddenTabs", ""),
         )
     }

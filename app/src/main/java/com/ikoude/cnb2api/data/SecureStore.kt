@@ -86,7 +86,7 @@ class SecureStore(context: Context) {
         appearance = prefs.getString("appearance", "system") ?: "system",
         listenHost = prefs.getString("listenHost", "0.0.0.0") ?: "0.0.0.0",
         gatewayAutoStart = prefs.getBoolean("gatewayAutoStart", true),
-        tabOrder = prefs.getString("tabOrder", "dashboard,accounts,settings,logs") ?: "dashboard,accounts,settings,logs",
+        tabOrder = prefs.getString("tabOrder", "dashboard,accounts,settings,logs,about") ?: "dashboard,accounts,settings,logs,about",
         hiddenTabs = prefs.getString("hiddenTabs", "") ?: "",
         webdavUrl = prefs.getString("webdavUrl", "") ?: "",
         webdavUser = prefs.getString("webdavUser", "") ?: "",

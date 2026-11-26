@@ -1,11 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- 应用图标前景：字母 C（开口朝右）+ 右侧节点，呼应 CNB2API 网关/连接。
+     108x108 视口，内容控制在 adaptive icon 安全区内。 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="108dp" android:height="108dp"
-    android:viewportWidth="108" android:viewportHeight="108">
-    <path android:pathData="M32,66 L54,42 L76,66"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:pathData="M66.6,36.0 A22,22 0 1 0 66.6,72.0"
         android:fillColor="@android:color/transparent"
-        android:strokeColor="#FFFFFFFF" android:strokeWidth="8"
-        android:strokeLineCap="round" android:strokeLineJoin="round" />
-    <path android:pathData="M54,76 m-6.5,0 a6.5,6.5 0 1,0 13,0 a6.5,6.5 0 1,0 -13,0"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="9"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <path
+        android:pathData="M75,54 m-6,0 a6,6 0 1,0 12,0 a6,6 0 1,0 -12,0"
         android:fillColor="#FFFFFFFF" />
 </vector>
